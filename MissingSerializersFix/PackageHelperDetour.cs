@@ -17,6 +17,7 @@ namespace MissingSerializersFix
 
         public static Dictionary<string, List<string>> subBuildings = new Dictionary<string, List<string>>();
         public static Dictionary<string, List<string>> propVariations = new Dictionary<string, List<string>>();
+        public static Dictionary<string, List<string>> treeVariations = new Dictionary<string, List<string>>();
 
         public static void Init()
         {
@@ -49,9 +50,14 @@ namespace MissingSerializersFix
             if (o.GetType() == typeof(PropInfo.Variation))
             {
                 PropInfo.Variation varitation = (PropInfo.Variation)o;
-                int num = varitation.m_prop.name.LastIndexOf(".");
-                string str = num >= 0 ? varitation.m_prop.name.Remove(0, num + 1) : varitation.m_prop.name;
-                w.Write(str);
+                w.Write(varitation.m_prop.name);
+                w.Write(varitation.m_probability);
+                return true;
+            }
+            if (o.GetType() == typeof(TreeInfo.Variation))
+            {
+                TreeInfo.Variation varitation = (TreeInfo.Variation)o;
+                w.Write(varitation.m_tree.name);
                 w.Write(varitation.m_probability);
                 return true;
             }
@@ -100,6 +106,23 @@ namespace MissingSerializersFix
                 {
                     m_prop = stubProp,
                     m_finalProp = stubProp,
+                    m_probability = r.ReadInt32()
+                };
+            }
+            if (t == typeof(TreeInfo.Variation))
+            {
+                var propId = r.ReadString();
+                var mainPropId = $"{p.packageName}.{p.packageMainAsset}_Data";
+                if (!treeVariations.ContainsKey(mainPropId))
+                {
+                    treeVariations.Add(mainPropId, new List<string>());
+                }
+                treeVariations[mainPropId].Add(propId);
+                var stubProp = PrefabCollection<TreeInfo>.FindLoaded("tree01"); //a fake sub building to prevent exception
+                return new TreeInfo.Variation()
+                {
+                    m_tree = stubProp,
+                    m_finalTree = stubProp,
                     m_probability = r.ReadInt32()
                 };
             }

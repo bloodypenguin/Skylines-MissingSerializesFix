@@ -11,6 +11,7 @@ namespace MissingSerializersFix
             base.OnCreated(loading);
             PackageHelperDetour.subBuildings.Clear();
             PackageHelperDetour.propVariations.Clear();
+            PackageHelperDetour.treeVariations.Clear();
             PackageHelperDetour.Init();
         }
 
@@ -46,6 +47,21 @@ namespace MissingSerializersFix
                 }
             }
             PackageHelperDetour.propVariations.Clear();
+
+            foreach (var kvp in PackageHelperDetour.treeVariations)
+            {
+                var mainProp = PrefabCollection<TreeInfo>.FindLoaded(kvp.Key);
+                if (mainProp == null)
+                {
+                    continue;
+                }
+                var variations = kvp.Value;
+                for (var index = 0; index < variations.Count; index++)
+                {
+                    mainProp.m_variations[index].m_finalTree = mainProp.m_variations[index].m_tree = PrefabCollection<TreeInfo>.FindLoaded(variations[index]);
+                }
+            }
+            PackageHelperDetour.treeVariations.Clear();
         }
 
         public override void OnReleased()
