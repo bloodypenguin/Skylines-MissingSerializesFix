@@ -18,17 +18,19 @@ namespace MissingSerializersFix
         public override void OnLevelLoaded(LoadMode mode)
         {
             base.OnLevelLoaded(mode);
-            foreach (var kvp in PackageHelperDetour.subBuildings)
+            for (uint i = 0; i < PrefabCollection<BuildingInfo>.LoadedCount(); i++)
             {
-                var mainBuilding = PrefabCollection<BuildingInfo>.FindLoaded(kvp.Key);
-                if (mainBuilding == null)
+                var info = PrefabCollection<BuildingInfo>.GetLoaded(i);
+                if (info.m_subBuildings == null || info.m_subBuildings.Length == 0)
                 {
                     continue;
                 }
-                var subBuildings = kvp.Value;
-                for (var index = 0; index < subBuildings.Count; index++)
+                foreach (var subInfo in info.m_subBuildings)
                 {
-                    mainBuilding.m_subBuildings[index].m_buildingInfo = PrefabCollection<BuildingInfo>.FindLoaded(subBuildings[index]);
+                    if (PackageHelperDetour.subBuildings.ContainsKey(subInfo))
+                    {
+                        subInfo.m_buildingInfo = PrefabCollection<BuildingInfo>.FindLoaded(PackageHelperDetour.subBuildings[subInfo]);
+                    }
                 }
             }
             PackageHelperDetour.subBuildings.Clear();
@@ -48,17 +50,19 @@ namespace MissingSerializersFix
             }
             PackageHelperDetour.propVariations.Clear();
 
-            foreach (var kvp in PackageHelperDetour.treeVariations)
+            for (uint i = 0; i < PrefabCollection<TreeInfo>.LoadedCount(); i++)
             {
-                var mainTree = PrefabCollection<TreeInfo>.FindLoaded(kvp.Key);
-                if (mainTree == null)
+                var info = PrefabCollection<TreeInfo>.GetLoaded(i);
+                if (info.m_variations == null || info.m_variations.Length == 0)
                 {
                     continue;
                 }
-                var variations = kvp.Value;
-                for (var index = 0; index < variations.Count; index++)
+                foreach (var variation in info.m_variations)
                 {
-                    mainTree.m_variations[index].m_finalTree = mainTree.m_variations[index].m_tree = PrefabCollection<TreeInfo>.FindLoaded(variations[index]);
+                    if (PackageHelperDetour.treeVariations.ContainsKey(variation))
+                    {
+                        variation.m_finalTree = variation.m_tree = PrefabCollection<TreeInfo>.FindLoaded(PackageHelperDetour.treeVariations[variation]);
+                    }
                 }
             }
             PackageHelperDetour.treeVariations.Clear();

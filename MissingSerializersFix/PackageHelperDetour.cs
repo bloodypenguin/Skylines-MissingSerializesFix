@@ -18,9 +18,9 @@ namespace MissingSerializersFix
         private static IntPtr _intPtr1;
         private static IntPtr _intPtr3;
 
-        public static Dictionary<string, List<string>> subBuildings = new Dictionary<string, List<string>>();
+        public static Dictionary<BuildingInfo.SubInfo, string> subBuildings = new Dictionary<BuildingInfo.SubInfo, string>();
         public static Dictionary<string, List<string>> propVariations = new Dictionary<string, List<string>>();
-        public static Dictionary<string, List<string>> treeVariations = new Dictionary<string, List<string>>();
+        public static Dictionary<TreeInfo.Variation, string> treeVariations = new Dictionary<TreeInfo.Variation, string>();
 
         public static void Init()
         {
@@ -80,20 +80,17 @@ namespace MissingSerializersFix
         {
             if (t == typeof(BuildingInfo.SubInfo))
             {
+                var stubSubBuilding = PrefabCollection<BuildingInfo>.FindLoaded(STUB_SUB_BULDING);
+
+                BuildingInfo.SubInfo subInfo = new BuildingInfo.SubInfo();
                 var buildingId = r.ReadString();
-                var mainBuildingId = $"{p.packageName}.{p.packageMainAsset}_Data";
-                if (!subBuildings.ContainsKey(mainBuildingId))
-                {
-                    subBuildings.Add(mainBuildingId, new List<string>());
-                }
-                subBuildings[mainBuildingId].Add(buildingId);
-                return (object)new BuildingInfo.SubInfo()
-                {
-                    m_buildingInfo = PrefabCollection<BuildingInfo>.FindLoaded(STUB_SUB_BULDING), //a fake sub building to prevent exception
-                    m_position = r.ReadVector3(),
-                    m_angle = r.ReadSingle(),
-                    m_fixedHeight = r.ReadBoolean()
-                };
+                subInfo.m_buildingInfo = stubSubBuilding;
+                subInfo.m_position = r.ReadVector3();
+                subInfo.m_angle = r.ReadSingle();
+                subInfo.m_fixedHeight = r.ReadBoolean();
+
+                subBuildings.Add(subInfo, buildingId);
+                return (object)subInfo;
             }
             if (t == typeof(PropInfo.Variation))
             {
@@ -114,20 +111,15 @@ namespace MissingSerializersFix
             }
             if (t == typeof(TreeInfo.Variation))
             {
-                var treeId = r.ReadString();
-                var mainTreeId = $"{p.packageName}.{p.packageMainAsset}_Data";
-                if (!treeVariations.ContainsKey(mainTreeId))
-                {
-                    treeVariations.Add(mainTreeId, new List<string>());
-                }
-                treeVariations[mainTreeId].Add(treeId);
                 var stubTree = PrefabCollection<TreeInfo>.FindLoaded(STUB_TREE); //a fake tree to prevent exception
-                return new TreeInfo.Variation()
-                {
-                    m_tree = stubTree,
-                    m_finalTree = stubTree,
-                    m_probability = r.ReadInt32()
-                };
+
+                var variation = new TreeInfo.Variation();
+                var treeId = r.ReadString();
+                variation.m_tree = stubTree;
+                variation.m_finalTree = stubTree;
+                variation.m_probability = r.ReadInt32();
+                treeVariations.Add(variation, treeId);
+                return variation;
             }
             RedirectionHelper.RevertJumpTo(_intPtr1, state2);
             try
