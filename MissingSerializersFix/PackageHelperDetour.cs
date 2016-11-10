@@ -101,7 +101,7 @@ namespace MissingSerializersFix
                     propVariations.Add(mainPropId, new List<string>());
                 }
                 propVariations[mainPropId].Add(propId);
-                var stubProp = PrefabCollection<PropInfo>.FindLoaded("Door Marker"); //a fake sub building to prevent exception
+                var stubProp = PrefabCollection<PropInfo>.FindLoaded("Door Marker"); //a fake prop to prevent exception
                 return new PropInfo.Variation()
                 {
                     m_prop = stubProp,
@@ -111,18 +111,18 @@ namespace MissingSerializersFix
             }
             if (t == typeof(TreeInfo.Variation))
             {
-                var propId = r.ReadString();
-                var mainPropId = $"{p.packageName}.{p.packageMainAsset}_Data";
-                if (!treeVariations.ContainsKey(mainPropId))
+                var treeId = r.ReadString();
+                var mainTreeId = $"{p.packageName}.{p.packageMainAsset}_Data";
+                if (!treeVariations.ContainsKey(mainTreeId))
                 {
-                    treeVariations.Add(mainPropId, new List<string>());
+                    treeVariations.Add(mainTreeId, new List<string>());
                 }
-                treeVariations[mainPropId].Add(propId);
-                var stubProp = PrefabCollection<TreeInfo>.FindLoaded("tree01"); //a fake sub building to prevent exception
+                treeVariations[mainTreeId].Add(treeId);
+                var stubTree = PrefabCollection<TreeInfo>.FindLoaded("tree01"); //a fake tree to prevent exception
                 return new TreeInfo.Variation()
                 {
-                    m_tree = stubProp,
-                    m_finalTree = stubProp,
+                    m_tree = stubTree,
+                    m_finalTree = stubTree,
                     m_probability = r.ReadInt32()
                 };
             }

@@ -50,15 +50,15 @@ namespace MissingSerializersFix
 
             foreach (var kvp in PackageHelperDetour.treeVariations)
             {
-                var mainProp = PrefabCollection<TreeInfo>.FindLoaded(kvp.Key);
-                if (mainProp == null)
+                var mainTree = PrefabCollection<TreeInfo>.FindLoaded(kvp.Key);
+                if (mainTree == null)
                 {
                     continue;
                 }
                 var variations = kvp.Value;
                 for (var index = 0; index < variations.Count; index++)
                 {
-                    mainProp.m_variations[index].m_finalTree = mainProp.m_variations[index].m_tree = PrefabCollection<TreeInfo>.FindLoaded(variations[index]);
+                    mainTree.m_variations[index].m_finalTree = mainTree.m_variations[index].m_tree = PrefabCollection<TreeInfo>.FindLoaded(variations[index]);
                 }
             }
             PackageHelperDetour.treeVariations.Clear();
