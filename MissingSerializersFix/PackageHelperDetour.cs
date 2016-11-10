@@ -56,9 +56,15 @@ namespace MissingSerializersFix
                 return true;
             }
             RedirectionHelper.RevertJumpTo(_intPtr, state);
-            var result = PackageHelper.CustomSerialize(p, o, w);
-            RedirectionHelper.PatchJumpTo(_intPtr, _intPtr2);
-            return result;
+            try
+            {
+                return PackageHelper.CustomSerialize(p, o, w);
+            }
+            finally
+            {
+                RedirectionHelper.PatchJumpTo(_intPtr, _intPtr2);
+            }
+
         }
 
         public static object CustomDeserialize(Package p, Type t, PackageReader r)
@@ -97,11 +103,15 @@ namespace MissingSerializersFix
                     m_probability = r.ReadInt32()
                 };
             }
-
             RedirectionHelper.RevertJumpTo(_intPtr1, state2);
-            var result = PackageHelper.CustomDeserialize(p, t, r);
-            RedirectionHelper.PatchJumpTo(_intPtr1, _intPtr3);
-            return result;
+            try
+            {
+                return PackageHelper.CustomDeserialize(p, t, r);
+            }
+            finally
+            {
+                RedirectionHelper.PatchJumpTo(_intPtr1, _intPtr3);
+            }
         }
     }
 }
