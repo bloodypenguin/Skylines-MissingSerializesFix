@@ -9,69 +9,115 @@ namespace MissingSerializersFix
         public override void OnCreated(ILoading loading)
         {
             base.OnCreated(loading);
-            PackageHelperDetour.subBuildings.Clear();
-            PackageHelperDetour.propVariations.Clear();
-            PackageHelperDetour.treeVariations.Clear();
             PackageHelperDetour.Init();
+            PackageHelperDetour.SubBuildings.Clear();
+            PackageHelperDetour.PropVariations.Clear();
+            PackageHelperDetour.TreeVariations.Clear();
         }
 
         public override void OnLevelLoaded(LoadMode mode)
         {
             base.OnLevelLoaded(mode);
-            for (uint i = 0; i < PrefabCollection<BuildingInfo>.LoadedCount(); i++)
+            try
             {
-                var info = PrefabCollection<BuildingInfo>.GetLoaded(i);
-                if (info.m_subBuildings == null || info.m_subBuildings.Length == 0)
+                PatchSubBuildings();
+            }
+            finally
+            {
+                try
                 {
-                    continue;
+                    PatchPropVariations();
                 }
-                foreach (var subInfo in info.m_subBuildings)
+                finally
                 {
-                    if (PackageHelperDetour.subBuildings.ContainsKey(subInfo))
+                    PatchTreeVariations();
+                }
+            }
+        }
+
+        private static void PatchSubBuildings()
+        {
+            if (PackageHelperDetour.SubBuildings.Count > 0)
+            {
+                for (uint i = 0; i < PrefabCollection<BuildingInfo>.LoadedCount(); i++)
+                {
+                    var info = PrefabCollection<BuildingInfo>.GetLoaded(i);
+                    if (info?.m_subBuildings == null || info.m_subBuildings.Length == 0)
                     {
-                        subInfo.m_buildingInfo = PrefabCollection<BuildingInfo>.FindLoaded(PackageHelperDetour.subBuildings[subInfo]);
+                        continue;
+                    }
+                    foreach (var subInfo in info.m_subBuildings)
+                    {
+                        if (subInfo == null)
+                        {
+                            continue;
+                        }
+                        if (PackageHelperDetour.SubBuildings.ContainsKey(subInfo))
+                        {
+                            subInfo.m_buildingInfo =
+                                PrefabCollection<BuildingInfo>.FindLoaded(PackageHelperDetour.SubBuildings[subInfo]);
+                        }
                     }
                 }
             }
-            PackageHelperDetour.subBuildings.Clear();
+            PackageHelperDetour.SubBuildings.Clear();
+        }
 
-            foreach (var kvp in PackageHelperDetour.propVariations)
+        private static void PatchPropVariations()
+        {
+            foreach (var kvp in PackageHelperDetour.PropVariations)
             {
                 var mainProp = PrefabCollection<PropInfo>.FindLoaded(kvp.Key);
-                if (mainProp== null)
+                if (mainProp == null)
                 {
                     continue;
                 }
                 var variations = kvp.Value;
                 for (var index = 0; index < variations.Count; index++)
                 {
-                    mainProp.m_variations[index].m_finalProp = mainProp.m_variations[index].m_prop = PrefabCollection<PropInfo>.FindLoaded(variations[index]);
+                    mainProp.m_variations[index].m_finalProp =
+                        mainProp.m_variations[index].m_prop = PrefabCollection<PropInfo>.FindLoaded(variations[index]);
                 }
             }
-            PackageHelperDetour.propVariations.Clear();
+            PackageHelperDetour.PropVariations.Clear();
+        }
 
-            for (uint i = 0; i < PrefabCollection<TreeInfo>.LoadedCount(); i++)
+        private static void PatchTreeVariations()
+        {
+            if (PackageHelperDetour.TreeVariations.Count > 0)
             {
-                var info = PrefabCollection<TreeInfo>.GetLoaded(i);
-                if (info.m_variations == null || info.m_variations.Length == 0)
+                for (uint i = 0; i < PrefabCollection<TreeInfo>.LoadedCount(); i++)
                 {
-                    continue;
-                }
-                foreach (var variation in info.m_variations)
-                {
-                    if (PackageHelperDetour.treeVariations.ContainsKey(variation))
+                    var info = PrefabCollection<TreeInfo>.GetLoaded(i);
+                    if (info?.m_variations == null || info.m_variations.Length == 0)
                     {
-                        variation.m_finalTree = variation.m_tree = PrefabCollection<TreeInfo>.FindLoaded(PackageHelperDetour.treeVariations[variation]);
+                        continue;
+                    }
+                    foreach (var variation in info.m_variations)
+                    {
+                        if (variation == null)
+                        {
+                            continue;
+                        }
+                        if (PackageHelperDetour.TreeVariations.ContainsKey(variation))
+                        {
+                            variation.m_finalTree =
+                                variation.m_tree =
+                                    PrefabCollection<TreeInfo>.FindLoaded(PackageHelperDetour.TreeVariations[variation]);
+                        }
                     }
                 }
             }
-            PackageHelperDetour.treeVariations.Clear();
+            PackageHelperDetour.TreeVariations.Clear();
         }
 
         public override void OnReleased()
         {
             base.OnReleased();
             PackageHelperDetour.Revert();
+            PackageHelperDetour.SubBuildings.Clear();
+            PackageHelperDetour.PropVariations.Clear();
+            PackageHelperDetour.TreeVariations.Clear();
         }
     }
 }

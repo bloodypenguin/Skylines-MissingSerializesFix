@@ -18,9 +18,9 @@ namespace MissingSerializersFix
         private static IntPtr _intPtr1;
         private static IntPtr _intPtr3;
 
-        public static Dictionary<BuildingInfo.SubInfo, string> subBuildings = new Dictionary<BuildingInfo.SubInfo, string>();
-        public static Dictionary<string, List<string>> propVariations = new Dictionary<string, List<string>>();
-        public static Dictionary<TreeInfo.Variation, string> treeVariations = new Dictionary<TreeInfo.Variation, string>();
+        public static readonly Dictionary<BuildingInfo.SubInfo, string> SubBuildings = new Dictionary<BuildingInfo.SubInfo, string>();
+        public static readonly Dictionary<string, List<string>> PropVariations = new Dictionary<string, List<string>>();
+        public static readonly Dictionary<TreeInfo.Variation, string> TreeVariations = new Dictionary<TreeInfo.Variation, string>();
 
         public static void Init()
         {
@@ -89,18 +89,18 @@ namespace MissingSerializersFix
                 subInfo.m_angle = r.ReadSingle();
                 subInfo.m_fixedHeight = r.ReadBoolean();
 
-                subBuildings.Add(subInfo, buildingId);
+                SubBuildings.Add(subInfo, buildingId);
                 return (object)subInfo;
             }
             if (t == typeof(PropInfo.Variation))
             {
                 var propId = r.ReadString();
                 var mainPropId = $"{p.packageName}.{p.packageMainAsset}_Data";
-                if (!propVariations.ContainsKey(mainPropId))
+                if (!PropVariations.ContainsKey(mainPropId))
                 {
-                    propVariations.Add(mainPropId, new List<string>());
+                    PropVariations.Add(mainPropId, new List<string>());
                 }
-                propVariations[mainPropId].Add(propId);
+                PropVariations[mainPropId].Add(propId);
                 var stubProp = PrefabCollection<PropInfo>.FindLoaded(STUB_PROP); //a fake prop to prevent exception
                 return new PropInfo.Variation()
                 {
@@ -118,7 +118,7 @@ namespace MissingSerializersFix
                 variation.m_tree = stubTree;
                 variation.m_finalTree = stubTree;
                 variation.m_probability = r.ReadInt32();
-                treeVariations.Add(variation, treeId);
+                TreeVariations.Add(variation, treeId);
                 return variation;
             }
             RedirectionHelper.RevertJumpTo(_intPtr1, state2);
