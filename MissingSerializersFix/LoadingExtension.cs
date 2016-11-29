@@ -9,30 +9,30 @@ namespace MissingSerializersFix
         public override void OnCreated(ILoading loading)
         {
             base.OnCreated(loading);
-            PackageHelperDetour.Init();
-            PackageHelperDetour.SubBuildings.Clear();
-            PackageHelperDetour.PropVariations.Clear();
-            PackageHelperDetour.TreeVariations.Clear();
+//            PackageHelperDetour.Init();
+//            PackageHelperDetour.SubBuildings.Clear();
+//            PackageHelperDetour.PropVariations.Clear();
+//            PackageHelperDetour.TreeVariations.Clear();
         }
 
         public override void OnLevelLoaded(LoadMode mode)
         {
             base.OnLevelLoaded(mode);
-            try
-            {
-                PatchSubBuildings();
-            }
-            finally
-            {
-                try
-                {
-                    PatchPropVariations();
-                }
-                finally
-                {
-                    PatchTreeVariations();
-                }
-            }
+//            try
+//            {
+//                PatchSubBuildings();
+//            }
+//            finally
+//            {
+//                try
+//                {
+//                    PatchPropVariations();
+//                }
+//                finally
+//                {
+//                    PatchTreeVariations();
+//                }
+//            }
         }
 
         private static void PatchSubBuildings()
@@ -114,10 +114,10 @@ namespace MissingSerializersFix
         public override void OnReleased()
         {
             base.OnReleased();
-            PackageHelperDetour.Revert();
-            PackageHelperDetour.SubBuildings.Clear();
-            PackageHelperDetour.PropVariations.Clear();
-            PackageHelperDetour.TreeVariations.Clear();
+//            PackageHelperDetour.Revert();
+//            PackageHelperDetour.SubBuildings.Clear();
+//            PackageHelperDetour.PropVariations.Clear();
+//            PackageHelperDetour.TreeVariations.Clear();
         }
     }
 }
